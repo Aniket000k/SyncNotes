@@ -1,0 +1,101 @@
+import { useState } from 'react';
+import NoteCard from './NoteCard';
+import { useTheme } from '../contexts/ThemeContext';
+
+const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const { isDarkMode } = useTheme();
+
+  const filteredNotes = notes.filter(note => 
+    note.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className={`w-80 flex flex-col h-screen ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} `}>
+      <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} `}>
+        <button
+          onClick={onCreateNote}
+          className="w-full  text-white py-2 px-4 rounded-md font-medium flex items-center justify-center bg-purple-600 transition-colors shadow-md hover:bg-gradient-to-r from-purple-500 to-indigo-500"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          New Note
+        </button>
+        
+        <div className="mt-4 relative">
+          <input
+            type="text"
+            placeholder="Search notes..."
+            className={`w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary ${
+              isDarkMode 
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            }`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <svg className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto">
+        {filteredNotes.length === 0 ? (
+          <div className={`p-4 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {searchTerm ? 'No notes found' : 'No notes yet. Create one!'}
+          </div>
+        ) : (
+          <div className="p-2">
+            {filteredNotes.map(note => (
+              <div
+                key={note.id}
+                className={`p-3 mb-2 rounded-lg cursor-pointer border ${
+                  selectedNote?.id === note.id
+                    ? isDarkMode 
+                      ? 'border-purple-700' 
+                      : 'bg-blue-50 border-purple-700'
+                    : isDarkMode
+                      ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                }`}
+                onClick={() => onSelectNote(note)}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className={`font-semibold truncate ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {note.title || 'Untitled'}
+                  </h3>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteNote(note.id);
+                    }}
+                    className="text-gray-400 hover:text-red-500 ml-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+                <p className={`text-sm mt-1 whitespace-pre-line ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {note.content.length > 100 
+                    ? note.content.substring(0, 100) + '...' 
+                    : note.content}
+                </p>
+                {note.updatedAt && (
+                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    {new Date(note.updatedAt.toDate()).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
