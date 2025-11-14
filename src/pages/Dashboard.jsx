@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Dashboard = () => {
+const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -222,6 +222,8 @@ const Dashboard = () => {
         onSelectNote={handleSelectNote}
         onCreateNote={handleCreateNote}
         onDeleteNote={handleDeleteNote}
+        isOpen={isSidebarOpen}
+        onToggle={onSidebarToggle}
       />
       
       <div className="flex-1 overflow-auto p-6">

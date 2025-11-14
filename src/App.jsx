@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase';
@@ -11,16 +12,25 @@ import Navbar from './components/Navbar';
 // Wrapper component to apply dark mode to the entire app
 function AppWrapper() {
   const { isDarkMode } = useTheme();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  const handleSidebarToggle = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'} App h-full`}>
       <Router>
         <div className="App">
-          {auth.currentUser && <Navbar />}
+          {auth.currentUser && <Navbar onSidebarToggle={handleSidebarToggle} />}
           <Routes>
             <Route 
               path="/" 
-              element={auth.currentUser ? <Dashboard /> : <Navigate to="/login" />} 
+              element={auth.currentUser ? (
+                <Dashboard isSidebarOpen={isSidebarOpen} onSidebarToggle={handleSidebarToggle} />
+              ) : (
+                <Navigate to="/login" />
+              )} 
             />
             <Route 
               path="/login" 
