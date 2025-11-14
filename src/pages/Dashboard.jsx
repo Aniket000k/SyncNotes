@@ -533,9 +533,9 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
 
   // Default dashboard view with all notes in cards
   return (
-    <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900">
-      <div className="h-full pt-16">
-        <div className="max-w-7xl mx-auto h-full flex">
+    <div className="min-h-screen w-screen bg-gray-50 dark:bg-gray-900">
+      <div className="pt-16 min-h-[calc(100vh-4rem)]">
+        <div className="w-full h-full flex">
           <Sidebar
             notes={notes}
             selectedNote={selectedNote}
@@ -546,7 +546,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
             onToggle={onSidebarToggle}
           />
 
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden border-l border-gray-200 dark:border-gray-800">
             <div className="px-6 pt-4 pb-3 flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur">
               <div>
                 <p className="text-xs uppercase tracking-wide text-gray-400">Overview</p>

@@ -89,7 +89,7 @@ const NoteCard = ({ note, viewMode, onSelect, onDelete }) => {
   // Grid view (default)
   return (
     <div
-      className="rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700 h-64 flex flex-col"
+      className="rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200/70 dark:border-gray-700/70 h-52 flex flex-col"
       style={cardStyle}
       onClick={onSelect}
     >
@@ -149,7 +149,7 @@ const NoteCard = ({ note, viewMode, onSelect, onDelete }) => {
             ))}
           </div>
         )}
-        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line line-clamp-5">{preview}</p>
+        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line line-clamp-4">{preview}</p>
       </div>
       {note.updatedAt && (
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">

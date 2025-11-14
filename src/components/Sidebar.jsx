@@ -75,11 +75,8 @@ const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         
           /* theme */
-          ${isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"}
-        
-          /* desktop border */
-          md:border-r
-        
+          ${isDarkMode ? "bg-gray-900" : "bg-white"}
+         
           /* shadow only on mobile */
           shadow-xl md:shadow-none
         
@@ -173,7 +170,7 @@ const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
                 />
               </svg>
             </div>
-            <p className={`mt-1 text-[11px] ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            <p className={`mt-1 pl-1 text-[11px] text-left ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
               {normalizedSearch
                 ? `${matchingNotes.length} note${matchingNotes.length === 1 ? "" : "s"} match your search`
                 : `${totalNotes} total note${totalNotes === 1 ? "" : "s"}`}
@@ -185,15 +182,15 @@ const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
         <div className="flex-none px-4 pb-4 pt-3 flex flex-col gap-3">
           {/* Sticker 1 */}
           <div
-            className={`h-20 rounded-2xl shadow-md flex items-center justify-center ${
+            className={`h-24 rounded-2xl shadow-md flex items-center justify-center ${
               isDarkMode ? "bg-gradient-to-br from-gray-800 to-gray-900" : "bg-gradient-to-br from-amber-100 to-yellow-100"
             }`}
           >
             <div className="flex flex-col items-center text-center">
-              <svg className="w-7 h-7 text-purple-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-9 h-9 text-purple-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h10v10H7zM9 5h6M9 19h6" />
               </svg>
-              <p className={`mt-1 text-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+              <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Capture ideas before they fade.
               </p>
             </div>
@@ -201,15 +198,15 @@ const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
  
           {/* Sticker 2 */}
           <div
-            className={`h-20 rounded-2xl shadow-md flex items-center justify-center ${
+            className={`h-24 rounded-2xl shadow-md flex items-center justify-center ${
               isDarkMode ? "bg-gradient-to-br from-gray-800 to-gray-900" : "bg-gradient-to-br from-blue-100 to-sky-100"
             }`}
           >
             <div className="flex flex-col items-center text-center">
-              <svg className="w-7 h-7 text-indigo-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-9 h-9 text-indigo-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l2 2m6-2a8 8 0 11-16 0 8 8 0 0116 0z" />
               </svg>
-              <p className={`mt-1 text-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+              <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Remember what matters, right on time.
               </p>
             </div>
@@ -217,15 +214,15 @@ const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
  
           {/* Sticker 3 */}
           <div
-            className={`h-20 rounded-2xl shadow-md flex items-center justify-center ${
+            className={`h-24 rounded-2xl shadow-md flex items-center justify-center ${
               isDarkMode ? "bg-gradient-to-br from-gray-800 to-gray-900" : "bg-gradient-to-br from-emerald-100 to-teal-100"
             }`}
           >
             <div className="flex flex-col items-center text-center">
-              <svg className="w-7 h-7 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-9 h-9 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h10M4 14h7M4 18h4" />
               </svg>
-              <p className={`mt-1 text-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+              <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
                 Organize thoughts, clear your mind.
               </p>
             </div>
