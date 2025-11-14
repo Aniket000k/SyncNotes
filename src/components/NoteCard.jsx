@@ -1,4 +1,8 @@
+import { useTheme } from '../contexts/ThemeContext';
+
 const NoteCard = ({ note, viewMode, onSelect, onDelete }) => {
+  const { isDarkMode } = useTheme();
+
   const formatDate = (timestamp) => {
     if (!timestamp) return '';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -16,11 +20,21 @@ const NoteCard = ({ note, viewMode, onSelect, onDelete }) => {
 
   const hasReminder = !!note.reminderAt;
   const hasImages = Array.isArray(note.images) && note.images.length > 0;
+  const color = note.color || '#f9fafb';
+
+  const lightStyle = { backgroundColor: color };
+  const darkStyle = {
+    backgroundColor: '#020617',
+    borderColor: color,
+    borderWidth: '1px',
+  };
+  const cardStyle = isDarkMode ? darkStyle : lightStyle;
 
   if (viewMode === 'list') {
     return (
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700"
+        className="rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700"
+        style={cardStyle}
         onClick={onSelect}
       >
         <div className="flex justify-between items-start">
@@ -75,7 +89,8 @@ const NoteCard = ({ note, viewMode, onSelect, onDelete }) => {
   // Grid view (default)
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700 h-64 flex flex-col"
+      className="rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700 h-64 flex flex-col"
+      style={cardStyle}
       onClick={onSelect}
     >
       <div className="flex justify-between items-start mb-3">

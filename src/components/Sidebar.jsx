@@ -15,12 +15,12 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
   });
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* Mobile Header */}
       <div
         className={`md:hidden fixed top-0 left-0 right-0 h-16 ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        } z-20 flex items-center px-4 border-b`}
+          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+        } z-30 flex items-center px-4 border-b`}
       >
         <button
           onClick={onToggle}
@@ -63,16 +63,16 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
 
       {/* Sidebar */}
       <div
-        className={`fixed md:relative w-64 md:w-80 flex flex-col h-screen transition-transform duration-300 ease-in-out transform ${
+        className={`fixed md:static inset-y-0 left-0 w-64 md:w-80 flex flex-col transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        } z-20 shadow-lg`}
+          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+        } md:border-r z-30 md:z-0 shadow-xl md:shadow-none`}
       >
-        <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className={`p-4 border-b ${isDarkMode ? 'border-gray-800' : 'border-gray-100'}`}>
           <button
             onClick={onCreateNote}
-            className="w-full text-white py-2 px-4 rounded-md font-medium flex items-center justify-center bg-purple-600 transition-colors shadow-md hover:bg-gradient-to-r from-purple-500 to-indigo-500"
+            className="w-full text-white py-2.5 px-4 rounded-lg font-semibold flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-500 shadow-md hover:shadow-lg hover:from-purple-500 hover:to-indigo-400 transition"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -95,10 +95,10 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
             <input
               type="text"
               placeholder="Search notes..."
-              className={`w-full pl-10 pr-10 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
+              className={`w-full pl-10 pr-10 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  ? 'bg-gray-800 border border-gray-700 text-white placeholder-gray-400'
+                  : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500'
               }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -127,12 +127,12 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
               </button>
             )}
           </div>
-          <p className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p className={`mt-2 text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             {filteredNotes.length} note{filteredNotes.length === 1 ? '' : 's'}
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto sidebar-scroll">
+        <div className="flex-1 overflow-y-auto sidebar-scroll bg-gradient-to-b from-black/5 to-transparent dark:from-white/5">
           {filteredNotes.length === 0 ? (
             <div
               className={`p-4 text-center ${
@@ -146,15 +146,16 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
               {filteredNotes.map((note) => (
                 <div
                   key={note.id}
-                  className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                  className={`group p-3 rounded-xl cursor-pointer border transition-all ${
                     selectedNote?.id === note.id
                       ? isDarkMode
-                        ? 'border-purple-500 bg-gray-700'
-                        : 'bg-purple-50 border-purple-500'
+                        ? 'border-purple-500 bg-gray-800 shadow-md'
+                        : 'bg-purple-50 border-purple-500 shadow-sm'
                       : isDarkMode
-                      ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                      ? 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-purple-400/60'
+                      : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-purple-300/60'
                   }`}
+                  style={note.color ? { borderLeftColor: note.color, borderLeftWidth: '4px' } : undefined}
                   onClick={() => onSelectNote(note)}
                 >
                   <div className="flex justify-between items-start">

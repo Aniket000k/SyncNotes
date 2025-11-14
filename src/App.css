@@ -8,8 +8,7 @@
   min-height: 100vh;
 }
 
-/* Optional subtle background for the whole app */
+/* Keep body neutral; main backgrounds come from Tailwind classes */
 body {
-  background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 55%),
-              radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.12), transparent 55%);
+  background-color: #f3f4f6;
 }

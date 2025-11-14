@@ -5,6 +5,21 @@ import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
 import { useTheme } from '../contexts/ThemeContext';
 
+// Soft pastel palette for note backgrounds
+const NOTE_COLORS = [
+  '#fef3c7', // amber-100
+  '#e0f2fe', // sky-100
+  '#e0f7fa', // cyan-100
+  '#fce7f3', // pink-100
+  '#ede9fe', // violet-100
+  '#dcfce7', // green-100
+];
+
+const getRandomNoteColor = () => {
+  const index = Math.floor(Math.random() * NOTE_COLORS.length);
+  return NOTE_COLORS[index];
+};
+
 const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
@@ -111,6 +126,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
       content: '',
       reminderAt: '',
       images: [],
+      color: getRandomNoteColor(),
       isNew: true,
     });
     setIsCreating(true);
@@ -125,6 +141,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
 
     const reminderDate = noteData.reminderAt ? new Date(noteData.reminderAt) : null;
     const images = Array.isArray(noteData.images) ? noteData.images : [];
+    const color = noteData.color || getRandomNoteColor();
 
     try {
       if (noteData.id) {
@@ -135,6 +152,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
           updatedAt: new Date(),
           ...(reminderDate ? { reminderAt: reminderDate } : { reminderAt: null }),
           images,
+          color,
         });
       } else {
         const newNote = {
@@ -144,6 +162,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
           updatedAt: new Date(),
           ...(reminderDate ? { reminderAt: reminderDate } : {}),
           images,
+          color,
         };
         await addDoc(collection(db, 'users', user.uid, 'notes'), newNote);
       }
@@ -200,6 +219,7 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
       ...note,
       reminderAt,
       images: Array.isArray(note.images) ? note.images : [],
+      color: note.color || getRandomNoteColor(),
     });
     setIsCreating(false);
   };
@@ -244,8 +264,8 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500" />
       </div>
     );
   }
@@ -253,173 +273,221 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
   // If we're creating or editing a note, show the editor
   if (isCreating || selectedNote) {
     return (
-      <div className="flex bg-white dark:bg-gray-900 pt-16 min-h-screen">
-        <Sidebar
-          notes={notes}
-          selectedNote={selectedNote}
-          onSelectNote={handleSelectNote}
-          onCreateNote={handleCreateNote}
-          onDeleteNote={handleDeleteNote}
-        />
+      <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900">
+        <div className="h-full pt-16">
+          <div className="max-w-7xl mx-auto h-full flex">
+            <Sidebar
+              notes={notes}
+              selectedNote={selectedNote}
+              onSelectNote={handleSelectNote}
+              onCreateNote={handleCreateNote}
+              onDeleteNote={handleDeleteNote}
+              isOpen={isSidebarOpen}
+              onToggle={onSidebarToggle}
+            />
 
-        <div className="flex-1 overflow-auto p-6 h-[calc(100vh-4rem)]">
-          {/* Alerts bar */}
-          {alerts.length > 0 && (
-            <div className="mb-4 space-y-2">
-              {alerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="flex items-center justify-between rounded-lg bg-amber-50 border border-amber-200 px-4 py-2 text-amber-900 text-sm shadow-sm"
-                >
-                  <div>
-                    <p className="font-semibold">{alert.title}</p>
-                    <p className="text-xs">{alert.message}</p>
-                  </div>
-                  <button
-                    onClick={() => dismissAlert(alert.id)}
-                    className="ml-4 text-amber-700 hover:text-amber-900"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className={`rounded-xl shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <div className="flex justify-between items-center mb-6">
-              <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {selectedNote?.id ? 'Edit Note' : 'Create New Note'}
-              </h1>
-              <button
-                onClick={() => setSelectedNote(null)}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
-                  isDarkMode
-                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                }`}
-              >
-                Back to Dashboard
-              </button>
-            </div>
-
-            <div className={`rounded-lg p-6 space-y-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <input
-                type="text"
-                placeholder="Note title"
-                className={`w-full text-2xl font-bold border-none bg-transparent focus:outline-none focus:ring-0 mb-2 ${
-                  isDarkMode
-                    ? 'text-white placeholder-gray-400'
-                    : 'text-gray-900 placeholder-gray-500'
-                }`}
-                value={selectedNote?.title || ''}
-                onChange={(e) =>
-                  setSelectedNote({
-                    ...selectedNote,
-                    title: e.target.value,
-                  })
-                }
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Reminder (optional)
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
-                    value={selectedNote?.reminderAt || ''}
-                    onChange={(e) =>
-                      setSelectedNote({
-                        ...selectedNote,
-                        reminderAt: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className={`block text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Attach images
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImagesChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                  />
-                </div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="px-6 pt-4 pb-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-400">Editing</p>
+                <h1 className={`text-2xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {selectedNote?.id ? 'Edit note' : 'New note'}
+                </h1>
               </div>
-
-              {selectedNote?.images && selectedNote.images.length > 0 && (
-                <div>
-                  <p className={`text-xs font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    Images
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {selectedNote.images.map((src, index) => (
-                      <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                        <img
-                          src={src}
-                          alt={`Note image ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <textarea
-                placeholder="Start writing your note here..."
-                className={`w-full h-64 resize-none border-none bg-transparent focus:outline-none focus:ring-0 ${
-                  isDarkMode
-                    ? 'text-gray-300 placeholder-gray-400'
-                    : 'text-gray-700 placeholder-gray-500'
-                }`}
-                value={selectedNote?.content || ''}
-                onChange={(e) =>
-                  setSelectedNote({
-                    ...selectedNote,
-                    content: e.target.value,
-                  })
-                }
-              />
-
-              {error && (
-                <p className="text-sm text-red-500 mt-2">{error}</p>
-              )}
-
-              <div className="flex justify-end space-x-4 mt-6">
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={handleCancelCreate}
-                  className={`px-4 py-2 rounded-md font-medium ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
                     isDarkMode
-                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
                       : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                   }`}
                 >
-                  Cancel
+                  Back to overview
                 </button>
                 <button
                   onClick={() => handleSaveNote(selectedNote)}
-                  className="bg-purple-600 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50 hover:bg-gradient-to-r from-purple-500 to-indigo-500 transition-colors shadow-md"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 hover:bg-gradient-to-r from-purple-500 to-indigo-500 transition-colors shadow-md"
                 >
-                  Save Note
+                  Save changes
                 </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto px-6 pb-6 pt-4">
+              {/* Alerts bar */}
+              {alerts.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {alerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="flex items-center justify-between rounded-lg bg-amber-50 border border-amber-200 px-4 py-2 text-amber-900 text-sm shadow-sm dark:bg-amber-900/20 dark:border-amber-600 dark:text-amber-100"
+                    >
+                      <div>
+                        <p className="font-semibold">{alert.title}</p>
+                        <p className="text-xs">{alert.message}</p>
+                      </div>
+                      <button
+                        onClick={() => dismissAlert(alert.id)}
+                        className="ml-4 text-amber-700 hover:text-amber-900 dark:text-amber-200 dark:hover:text-amber-50"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div
+                className={`rounded-2xl shadow-sm border ${
+                  isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                }`}
+                style={selectedNote?.color ? { borderTop: `4px solid ${selectedNote.color}` } : undefined}
+              >
+                <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <input
+                    type="text"
+                    placeholder="Give your note a clear, descriptive title"
+                    className={`w-full text-2xl font-semibold border-none bg-transparent focus:outline-none focus:ring-0 ${
+                      isDarkMode
+                        ? 'text-white placeholder-gray-500'
+                        : 'text-gray-900 placeholder-gray-400'
+                    }`}
+                    value={selectedNote?.title || ''}
+                    onChange={(e) =>
+                      setSelectedNote({
+                        ...selectedNote,
+                        title: e.target.value,
+                      })
+                    }
+                  />
+
+                  <div className="mt-2 md:mt-0 flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700 shadow-inner"
+                      style={{ backgroundColor: selectedNote?.color || '#f9fafb' }}
+                    />
+                    <input
+                      type="color"
+                      className="w-9 h-9 p-0 border-none bg-transparent cursor-pointer"
+                      value={selectedNote?.color || '#fef3c7'}
+                      onChange={(e) =>
+                        setSelectedNote({
+                          ...selectedNote,
+                          color: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="p-5 border-b border-gray-200 dark:border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={`block text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Reminder (optional)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                        isDarkMode
+                          ? 'bg-gray-900 border-gray-700 text-gray-100'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                      value={selectedNote?.reminderAt || ''}
+                      onChange={(e) =>
+                        setSelectedNote({
+                          ...selectedNote,
+                          reminderAt: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Quick colors
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {NOTE_COLORS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() =>
+                            setSelectedNote({
+                              ...selectedNote,
+                              color: c,
+                            })
+                          }
+                          className={`w-7 h-7 rounded-full border ${
+                            selectedNote?.color === c ? 'border-purple-500 scale-110' : 'border-transparent'
+                          } transition-transform`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={`block text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Attach images
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImagesChange}
+                      className="block w-full text-sm text-gray-500 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/40 dark:file:text-purple-100"
+                    />
+                  </div>
+                </div>
+
+                {selectedNote?.images && selectedNote.images.length > 0 && (
+                  <div className="px-5 pt-4">
+                    <p className={`text-xs font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      Images
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {selectedNote.images.map((src, index) => (
+                        <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                          <img
+                            src={src}
+                            alt={`Note image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-5">
+                  <textarea
+                    placeholder="Start writing your note here..."
+                    className={`w-full min-h-[260px] resize-none border-none bg-transparent focus:outline-none focus:ring-0 text-sm leading-relaxed ${
+                      isDarkMode
+                        ? 'text-gray-100 placeholder-gray-500'
+                        : 'text-gray-800 placeholder-gray-400'
+                    }`}
+                    value={selectedNote?.content || ''}
+                    onChange={(e) =>
+                      setSelectedNote({
+                        ...selectedNote,
+                        content: e.target.value,
+                      })
+                    }
+                  />
+
+                  {error && (
+                    <p className="text-sm text-red-500 mt-2">{error}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -430,109 +498,125 @@ const Dashboard = ({ isSidebarOpen, onSidebarToggle }) => {
 
   // Default dashboard view with all notes in cards
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-900 pt-16">
-      <Sidebar
-        notes={notes}
-        selectedNote={selectedNote}
-        onSelectNote={handleSelectNote}
-        onCreateNote={handleCreateNote}
-        onDeleteNote={handleDeleteNote}
-        isOpen={isSidebarOpen}
-        onToggle={onSidebarToggle}
-      />
+    <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900">
+      <div className="h-full pt-16">
+        <div className="max-w-7xl mx-auto h-full flex">
+          <Sidebar
+            notes={notes}
+            selectedNote={selectedNote}
+            onSelectNote={handleSelectNote}
+            onCreateNote={handleCreateNote}
+            onDeleteNote={handleDeleteNote}
+            isOpen={isSidebarOpen}
+            onToggle={onSidebarToggle}
+          />
 
-      <div className="flex-1 overflow-auto p-6 h-[calc(100vh-4rem)]">
-        {/* Alerts bar */}
-        {alerts.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className="flex items-center justify-between rounded-lg bg-amber-50 border border-amber-200 px-4 py-2 text-amber-900 text-sm shadow-sm"
+          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 pt-4 pb-3 flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-gray-400">Overview</p>
+              <h1 className={`text-2xl md:text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                My notes
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCreateNote}
+                className="hidden sm:inline-flex items-center bg-purple-600 hover:bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium px-4 py-2 rounded-md text-sm shadow-md"
               >
-                <div>
-                  <p className="font-semibold">{alert.title}</p>
-                  <p className="text-xs">{alert.message}</p>
-                </div>
-                <button
-                  onClick={() => dismissAlert(alert.id)}
-                  className="ml-4 text-amber-700 hover:text-amber-900"
+                <span className="mr-2 text-lg">＋</span> New note
+              </button>
+              <button
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${
+                  isDarkMode
+                    ? 'bg-gray-800 text-gray-100 hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                {viewMode === 'grid' ? 'List view' : 'Grid view'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-auto px-6 pb-6 pt-4">
+            {/* Alerts bar */}
+            {alerts.length > 0 && (
+              <div className="mb-4 space-y-2">
+                {alerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    className="flex items-center justify-between rounded-lg bg-amber-50 border border-amber-200 px-4 py-2 text-amber-900 text-sm shadow-sm dark:bg-amber-900/20 dark:border-amber-600 dark:text-amber-100"
+                  >
+                    <div>
+                      <p className="font-semibold">{alert.title}</p>
+                      <p className="text-xs">{alert.message}</p>
+                    </div>
+                    <button
+                      onClick={() => dismissAlert(alert.id)}
+                      className="ml-4 text-amber-700 hover:text-amber-900 dark:text-amber-200 dark:hover:text-amber-50"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {error && (
+              <p className="text-sm text-red-500 mb-4">{error}</p>
+            )}
+
+            {notes.length === 0 ? (
+              <div className={`rounded-2xl shadow-sm border p-10 text-center ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
+                <svg
+                  className={`w-16 h-16 mx-auto ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  ×
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <h3 className={`mt-4 text-xl font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  No notes yet
+                </h3>
+                <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Create your first note to get started.
+                </p>
+                <button
+                  onClick={handleCreateNote}
+                  className="mt-4 bg-purple-600 hover:bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium py-2 px-4 rounded-md shadow-md"
+                >
+                  Create your first note
                 </button>
               </div>
-            ))}
+            ) : (
+              <div
+                className={
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'
+                    : 'space-y-4'
+                }
+              >
+                {notes.map((note) => (
+                  <NoteCard
+                    key={note.id}
+                    note={note}
+                    viewMode={viewMode}
+                    onSelect={() => handleSelectNote(note)}
+                    onDelete={() => handleDeleteNote(note.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="flex justify-between items-center mb-8">
-          <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            My Notes
-          </h1>
-          <button
-            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              isDarkMode
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-            }`}
-          >
-            {viewMode === 'grid' ? 'List View' : 'Grid View'}
-          </button>
         </div>
-
-        {error && (
-          <p className="text-sm text-red-500 mb-4">{error}</p>
-        )}
-
-        {notes.length === 0 ? (
-          <div className={`rounded-xl shadow-md p-8 text-center ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <svg
-              className={`w-16 h-16 mx-auto ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <h3 className={`mt-4 text-xl font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              No notes yet
-            </h3>
-            <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              Create your first note to get started
-            </p>
-            <button
-              onClick={handleCreateNote}
-              className="mt-4 bg-purple-600 hover:bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium py-2 px-4 rounded-md shadow-md"
-            >
-              Create Your First Note
-            </button>
-          </div>
-        ) : (
-          <div
-            className={
-              viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-                : 'space-y-4'
-            }
-          >
-            {notes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                viewMode={viewMode}
-                onSelect={() => handleSelectNote(note)}
-                onDelete={() => handleDeleteNote(note.id)}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
