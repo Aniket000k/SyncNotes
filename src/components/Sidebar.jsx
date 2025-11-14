@@ -1,21 +1,14 @@
-import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote, isOpen, onToggle }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const Sidebar = ({ notes, isOpen, onToggle, onCreateNote }) => {
   const { isDarkMode } = useTheme();
 
-  const normalizedSearch = searchTerm.toLowerCase();
-  const filteredNotes = notes.filter((note) => {
-    const title = (note.title || '').toLowerCase();
-    const content = (note.content || '').toLowerCase();
-    return (
-      title.includes(normalizedSearch) || content.includes(normalizedSearch)
-    );
-  });
+  const totalNotes = notes.length;
+  const reminderNotes = notes.filter((note) => note.reminderAt).length;
+  const imageNotes = notes.filter((note) => Array.isArray(note.images) && note.images.length > 0).length;
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-screen">
       {/* Mobile Header */}
       <div
         className={`md:hidden fixed top-0 left-0 right-0 h-16 ${
@@ -91,142 +84,141 @@ const Sidebar = ({ notes, selectedNote, onSelectNote, onCreateNote, onDeleteNote
             New Note
           </button>
 
-          <div className="mt-4 relative">
-            <input
-              type="text"
-              placeholder="Search notes..."
-              className={`w-full pl-10 pr-10 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                isDarkMode
-                  ? 'bg-gray-800 border border-gray-700 text-white placeholder-gray-400'
-                  : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500'
-              }`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <svg
-              className="w-5 h-5 absolute left-3 top-2.5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-xs"
-              >
-                ×
-              </button>
-            )}
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+            <div className={`rounded-xl py-3 flex flex-col items-center justify-center ${
+              isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-purple-50 text-purple-700'
+            }`}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6M9 8h6M5 5h14v14H5z"
+                  />
+                </svg>
+              </div>
+              <p className="mt-1 text-sm font-semibold">{totalNotes}</p>
+            </div>
+            <div className={`rounded-xl py-3 flex flex-col items-center justify-center ${
+              isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-amber-50 text-amber-700'
+            }`}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l2 2m6-2a8 8 0 11-16 0 8 8 0 0116 0z"
+                  />
+                </svg>
+              </div>
+              <p className="mt-1 text-sm font-semibold">{reminderNotes}</p>
+            </div>
+            <div className={`rounded-xl py-3 flex flex-col items-center justify-center ${
+              isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-sky-50 text-sky-700'
+            }`}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L22 16M4 6h16v12H4z"
+                  />
+                </svg>
+              </div>
+              <p className="mt-1 text-sm font-semibold">{imageNotes}</p>
+            </div>
           </div>
-          <p className={`mt-2 text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            {filteredNotes.length} note{filteredNotes.length === 1 ? '' : 's'}
-          </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto sidebar-scroll bg-gradient-to-b from-black/5 to-transparent dark:from-white/5">
-          {filteredNotes.length === 0 ? (
+        <div className="flex-1 overflow-hidden bg-gradient-to-b from-black/5 to-transparent dark:from-white/5">
+          <div className="h-full flex flex-col gap-4 p-4">
+            {/* Tall sticker 1 */}
             <div
-              className={`p-4 text-center ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
+              className={`flex-1 rounded-3xl shadow-md flex items-center justify-center transform -rotate-2 ${
+                isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-amber-100 to-yellow-100'
               }`}
             >
-              {searchTerm ? 'No notes match your search.' : 'No notes yet. Create one!'}
+              <svg
+                className="w-12 h-12 text-purple-500/80 dark:text-purple-300/80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 7h10v10H7zM9 5h6M9 19h6"
+                />
+              </svg>
             </div>
-          ) : (
-            <div className="p-2 space-y-2">
-              {filteredNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className={`group p-3 rounded-xl cursor-pointer border transition-all ${
-                    selectedNote?.id === note.id
-                      ? isDarkMode
-                        ? 'border-purple-500 bg-gray-800 shadow-md'
-                        : 'bg-purple-50 border-purple-500 shadow-sm'
-                      : isDarkMode
-                      ? 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-purple-400/60'
-                      : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-purple-300/60'
-                  }`}
-                  style={note.color ? { borderLeftColor: note.color, borderLeftWidth: '4px' } : undefined}
-                  onClick={() => onSelectNote(note)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-2">
-                      <h3
-                        className={`font-semibold truncate max-w-[10rem] ${
-                          isDarkMode ? 'text-white' : 'text-gray-800'
-                        }`}
-                      >
-                        {note.title || 'Untitled'}
-                      </h3>
-                      {note.reminderAt && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
-                          ⏰
-                        </span>
-                      )}
-                      {Array.isArray(note.images) && note.images.length > 0 && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800">
-                          🖼 {note.images.length}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteNote(note.id);
-                      }}
-                      className="text-gray-400 hover:text-red-500 ml-2"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <p
-                    className={`text-sm mt-1 whitespace-pre-line ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}
-                  >
-                    {(note.content || '').length > 100
-                      ? `${note.content.substring(0, 100)}...`
-                      : note.content}
-                  </p>
-                  {note.updatedAt && (
-                    <p
-                      className={`text-xs mt-2 ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                      }`}
-                    >
-                      {new Date(
-                        note.updatedAt.toDate
-                          ? note.updatedAt.toDate()
-                          : note.updatedAt
-                      ).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              ))}
+
+            {/* Tall sticker 2 */}
+            <div
+              className={`flex-1 rounded-3xl shadow-md flex items-center justify-center transform rotate-1 ${
+                isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-sky-100 to-blue-100'
+              }`}
+            >
+              <svg
+                className="w-11 h-11 text-indigo-500/80 dark:text-indigo-300/80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l2 2m6-2a8 8 0 11-16 0 8 8 0 0116 0z"
+                />
+              </svg>
             </div>
-          )}
+
+            {/* Tall sticker 3 */}
+            <div
+              className={`flex-1 rounded-3xl shadow-md flex items-center justify-center transform -rotate-1 ${
+                isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-gradient-to-br from-emerald-100 to-teal-100'
+              }`}
+            >
+              <svg
+                className="w-11 h-11 text-emerald-500/80 dark:text-emerald-300/80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 10h10M4 14h7M4 18h4"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
     </div>
